@@ -1945,6 +1945,81 @@
 
         /* ========== MEDIA QUERIES MOBILE OTIMIZADAS ========== */
         @media (max-width: 768px) {
+            /* Manter o drag ativo em mobile */
+            .disciplina-orbit {
+                cursor: grab !important;
+                pointer-events: auto !important;
+                touch-action: none !important; /* Melhor para touch */
+            }
+
+            .disciplina-orbit:active {
+                cursor: grabbing !important;
+            }
+
+            /* Aumentar área de toque para facilitar arrastar */
+            .disciplina-orbit {
+                padding: 10px 15px !important;
+                min-width: 80px;
+            }
+
+            /* Ajustar tamanho dos textos dentro das disciplinas para mobile */
+            .disciplina-orbit .disc-info h4 {
+                font-size: 0.7rem !important;
+            }
+
+            .disciplina-orbit .disc-icon {
+                width: 28px !important;
+                height: 28px !important;
+                font-size: 0.8rem !important;
+            }
+        }
+
+            .disciplina-orbit:nth-child(1) { animation: spin1 8s linear infinite !important; }
+            .disciplina-orbit:nth-child(2) { animation: spin2 11s linear infinite !important; }
+            .disciplina-orbit:nth-child(3) { animation: spin3 15s linear infinite !important; }
+            .disciplina-orbit:nth-child(4) { animation: spin4 20s linear infinite !important; }
+            .disciplina-orbit:nth-child(5) { animation: spin5 26s linear infinite !important; }
+
+            /* Manter efeitos do buraco negro */
+            .blackhole-glow, .accretion-disk, .photon-ring, .event-horizon, .singularity {
+                display: block !important;
+            }
+
+            /* Manter hologramas animados */
+            .hologram-card {
+                animation: hologramFloat 4s ease-in-out infinite !important;
+            }
+
+            /* Manter glow do texto DAC */
+            .dac-title-main {
+                animation: glowText 3s ease-in-out infinite, fadeInUp 1s ease forwards 0.5s !important;
+            }
+
+            /* Manter rotação do globo */
+            .tema-icon {
+                animation: rotateGlobe 20s linear infinite !important;
+            }
+
+            /* Manter pulso do herói */
+            .hero::before, .hero::after {
+                animation: pulse 8s ease-in-out infinite !important;
+            }
+
+            /* Manter partículas flutuantes */
+            .particle {
+                animation: float 15s infinite ease-in-out !important;
+            }
+
+            /* Manter o brilho do monitor */
+            .monitor-wrap::before {
+                animation: rgbMove 2s linear infinite !important;
+            }
+
+            /* Manter estrelas a piscar */
+            .star {
+                animation: twinkle var(--duration, 3s) ease-in-out infinite !important;
+            }
+
             .menu-toggle { display: none; }
             .nav-links li { margin-left: 0.15rem; }
             .nav-links a { font-size: 0.8rem; padding: 6px 10px; }
@@ -1956,7 +2031,6 @@
             .dac-subitem-title { font-size: 1.6rem; }
             .penteados-showcase { grid-template-columns: repeat(2, 1fr); }
             .gallery-img { height: 250px; }
-        }
 
         @media (max-width: 768px) {
             .menu-toggle { display: block; z-index: 1001; padding: 8px; }
@@ -5659,12 +5733,79 @@
 
     // Event Listeners para Drag
     disciplinas.forEach(d => d.addEventListener('mousedown', startDrag));
+    disciplinas.forEach(d => d.addEventListener('mousedown', startDrag));
     document.addEventListener('mousemove', drag);
     document.addEventListener('mouseup', endDrag);
     disciplinas.forEach(d => d.addEventListener('touchstart', startDrag, { passive: false }));
     document.addEventListener('touchmove', drag, { passive: false });
     document.addEventListener('touchend', endDrag);
-    window.addEventListener('resize', getCenter);
+
+    // Forçar reativação dos eventos de drag em mobile
+    window.addEventListener('resize', function() {
+        if (window.innerWidth <= 768) {
+            const disciplinas = document.querySelectorAll('.disciplina-orbit');
+            disciplinas.forEach(function(d) {
+                d.style.pointerEvents = 'auto';
+                d.style.touchAction = 'none';
+            });
+        }
+    });
+
+        if (isMobile) {
+            // Forçar que as animações sejam aplicadas
+            const style = document.createElement('style');
+            style.textContent = `
+            /* Forçar animações em mobile */
+            .disciplina-orbit {
+                animation-play-state: running !important;
+            }
+            .hologram-card {
+                animation-play-state: running !important;
+            }
+            .tema-icon {
+                animation-play-state: running !important;
+            }
+            .dac-title-main {
+                animation-play-state: running !important;
+            }
+            .hero::before, .hero::after {
+                animation-play-state: running !important;
+            }
+            .particle {
+                animation-play-state: running !important;
+            }
+        `;
+            document.head.appendChild(style);
+
+            // Forçar reflow para ativar animações
+            setTimeout(function() {
+                const elements = document.querySelectorAll('.disciplina-orbit, .hologram-card, .tema-icon');
+                elements.forEach(function(el) {
+                    el.style.animation = 'none';
+                    el.offsetHeight; // forçar reflow
+                    el.style.animation = '';
+                });
+            }, 100);
+
+    }
+
+    // Função para reativar animações ao mudar de página
+    const originalShowPage = window.showPage;
+    if (originalShowPage) {
+        window.showPage = function(pageName) {
+            originalShowPage(pageName);
+
+            // Reativar animações após mudar de página
+            setTimeout(function() {
+                if (window.innerWidth <= 768) {
+                    const animatedElements = document.querySelectorAll('.disciplina-orbit, .hologram-card, .tema-icon, .dac-title-main');
+                    animatedElements.forEach(function(el) {
+                        el.style.animationPlayState = 'running';
+                    });
+                }
+            }, 50);
+        };
+    }
 
     // ========== SISTEMA DE TRADUÇÃO PT ↔ EN ==========
     let currentLang = 'pt';
